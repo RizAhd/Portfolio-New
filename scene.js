@@ -217,9 +217,8 @@
       // Skip all 3D work when the hero is off-screen or tab hidden → smooth content scroll.
       if (!heroVisible || !pageVisible) { clock.getDelta(); return; }
       var now = performance.now();
-      // Pause rendering while actively scrolling so scroll frames stay buttery.
-      if (now - lastScrollT < 160) { clock.getDelta(); return; }
-      // Cap to ~40fps — plenty for a background, halves the GPU/CPU load.
+      // Cap to ~40fps — keeps the background animating continuously (even while
+      // scrolling) at roughly half the GPU/CPU load.
       if (now - lastRender < 24) return;
       lastRender = now;
       var t = clock.getElapsedTime();
