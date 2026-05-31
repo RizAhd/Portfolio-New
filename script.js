@@ -30,20 +30,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  /* ---------- Lenis smooth scroll (desktop pointers only — phones use native momentum) ---------- */
+  /* ---------- Scrolling: NATIVE on every device (smoothest, lowest overhead).
+     Anchor jumps use CSS `scroll-behavior: smooth`. No scroll-hijack library. ---------- */
   var TOUCH = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   var lenis = null;
-  if (window.Lenis && !REDUCED && !TOUCH) {
-    lenis = new Lenis({ duration: 1.05, easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); }, smoothWheel: true, smoothTouch: false, wheelMultiplier: 1, syncTouch: false });
-    // When GSAP is present, gsap.ticker drives lenis.raf (below) — avoid double-driving here.
-    if (!hasGSAP) { (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })(0); }
-    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-      a.addEventListener('click', function (e) {
-        var id = a.getAttribute('href');
-        if (id.length > 1) { var t = document.querySelector(id); if (t) { e.preventDefault(); lenis.scrollTo(t, { offset: 0 }); } }
-      });
-    });
-  }
 
   /* ---------- Nav glass + progress + scene scroll ---------- */
   var nav = document.getElementById('nav');
@@ -142,16 +132,8 @@ document.addEventListener('DOMContentLoaded', function () {
     /* Language bars */
     ScrollTrigger.create({ trigger: '.languages', start: 'top 82%', once: true, onEnter: fillBars });
 
-    /* ---- Parallax (scrub) — desktop only; skipped on touch to keep phones buttery ---- */
-    if (!TOUCH) {
-      gsap.fromTo('.hero-photo', { yPercent: 0 }, { yPercent: -12, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } });
-      gsap.utils.toArray('.section-title').forEach(function (t) {
-        gsap.fromTo(t, { y: 30 }, { y: -22, ease: 'none', scrollTrigger: { trigger: t, start: 'top 92%', end: 'top 38%', scrub: 1 } });
-      });
-      gsap.utils.toArray('.section-index').forEach(function (s) {
-        gsap.fromTo(s, { y: 12 }, { y: -24, ease: 'none', scrollTrigger: { trigger: s, start: 'top bottom', end: 'top top', scrub: true } });
-      });
-    }
+    /* (Scroll-scrub parallax removed — reveals fire once on enter, nothing
+       recomputes every scroll tick, so scrolling stays light and smooth.) */
 
     window.addEventListener('load', function () { ScrollTrigger.refresh(); });
   } else {
