@@ -107,30 +107,11 @@ document.addEventListener('DOMContentLoaded', function () {
       .from('.hero-cta .btn', { y: 20, opacity: 0, stagger: 0.1, duration: .5 }, '-=0.35')
       .from('.stat', { y: 24, opacity: 0, stagger: 0.1, duration: .5, onStart: startCounters }, '-=0.3');
 
-    /* Reveal-on-scroll with 3D tilt-in (everything except hero + project cards) */
-    var revealEls = gsap.utils.toArray('.reveal:not(.project-card)');
-    gsap.set(revealEls, { y: 48, rotateX: 8, transformPerspective: 800, transformOrigin: '50% 100%' });
-    ScrollTrigger.batch(revealEls, {
-      start: 'top 86%',
-      onEnter: function (batch) { gsap.to(batch, { opacity: 1, y: 0, rotateX: 0, duration: 1, stagger: 0.09, ease: 'power3.out', overwrite: true }); }
-    });
+    /* Content is shown immediately (no scroll-reveal hiding) so everything
+       loads instantly and fast scrolling never leaves sections blank. */
 
-    /* Project cards: dedicated scale/lift reveal, then clear transform so the
-       3D hover-tilt handler starts from a clean slate (no conflict). */
-    var cardEls = gsap.utils.toArray('.project-card');
-    gsap.set(cardEls, { y: 60, scale: 0.94 });
-    ScrollTrigger.batch(cardEls, {
-      start: 'top 88%',
-      onEnter: function (batch) { gsap.to(batch, { opacity: 1, y: 0, scale: 1, duration: 0.9, stagger: 0.08, ease: 'power3.out', overwrite: true, clearProps: 'transform' }); }
-    });
-
-    /* Section dividers draw out */
-    gsap.utils.toArray('.section-divider').forEach(function (d) {
-      gsap.to(d, { scaleX: 1, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: d, start: 'top 90%' } });
-    });
-
-    /* Language bars */
-    ScrollTrigger.create({ trigger: '.languages', start: 'top 82%', once: true, onEnter: fillBars });
+    /* Language bars fill when reached (content is already visible regardless) */
+    ScrollTrigger.create({ trigger: '.languages', start: 'top 85%', once: true, onEnter: fillBars });
 
     /* (Scroll-scrub parallax removed — reveals fire once on enter, nothing
        recomputes every scroll tick, so scrolling stays light and smooth.) */
