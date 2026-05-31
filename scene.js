@@ -36,15 +36,15 @@
     /* ---- adaptive quality ---- */
     var tier = W < 600 ? 'low' : (W < 1024 ? 'mid' : 'high');
     var CFG = {
-      high: { particles: 2500, size: 0.11, dpr: Math.min(window.devicePixelRatio, 2) },
-      mid:  { particles: 2000, size: 0.12, dpr: Math.min(window.devicePixelRatio, 1.75) },
+      high: { particles: 1000, size: 0.11, dpr: Math.min(window.devicePixelRatio, 2) },
+      mid:  { particles: 1000, size: 0.12, dpr: Math.min(window.devicePixelRatio, 1.75) },
       low:  { particles: 1125, size: 0.13, dpr: Math.min(window.devicePixelRatio, 1.5) }
     }[tier];
 
     /* ---- theme palette ---- */
     var THEME = {
-      dark:  { particle: 0xf3ecd6, core: 0xd4af37, ring: 0xffffff, trail: 0xd4af37, glow: 0xd4af37, fog: 0x0a0a0a, particleOpacity: 0.8, blend: THREE.AdditiveBlending },
-      light: { particle: 0x33312b, core: 0xc9a227, ring: 0x111111, trail: 0xc9a227, glow: 0xc9a227, fog: 0xffffff, particleOpacity: 0.8, blend: THREE.NormalBlending }
+      dark:  { particle: 0xf3ecd6, core: 0xd4af37, ring: 0xffffff, trail: 0xd4af37, glow: 0xd4af37, fog: 0x0a0a0a, particleOpacity: 0.7, blend: THREE.AdditiveBlending },
+      light: { particle: 0x33312b, core: 0xc9a227, ring: 0x111111, trail: 0xc9a227, glow: 0xc9a227, fog: 0xffffff, particleOpacity: 0.7, blend: THREE.NormalBlending }
     };
     var themeName = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
     var P = THEME[themeName];
