@@ -20,6 +20,8 @@
   --hl1: #9A7B1F;                 /* deep gold — text highlight */
   --hl2: #C9A227;                 /* gold */
   --hero-veil: rgba(255, 255, 255, 0.55);
+  --star: rgba(151, 120, 76, 0.5);
+  --star2: rgba(11, 11, 11, 0.32);
   --radius: 18px;
   --maxw: 1140px;
   --ease: cubic-bezier(.22, 1, .36, 1);
@@ -39,6 +41,8 @@
   --hl1: #F2DD95;                 /* light gold — text highlight */
   --hl2: #D4AF37;                 /* gold */
   --hero-veil: rgba(8, 8, 8, 0.5);
+  --star: rgba(212, 175, 55, 0.6);
+  --star2: rgba(255, 255, 255, 0.55);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -100,6 +104,29 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .grain { position: fixed; inset: -50%; z-index: -1; pointer-events: none; opacity: .03; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 /* Page scrim — JS ramps opacity up after the hero so content stays readable */
 .page-scrim { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--bg-primary); opacity: 0; will-change: opacity; }
+
+/* CSS particle field — always visible, drifting, independent of WebGL.
+   Two parallax layers of dots built from tiled radial-gradients. */
+.fx-stars { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.fx-stars::before, .fx-stars::after { content: ""; position: absolute; inset: -60%; background-repeat: repeat; will-change: transform; }
+.fx-stars::before {
+  background-image:
+    radial-gradient(circle, var(--star) 1.2px, transparent 1.8px),
+    radial-gradient(circle, var(--star) 1px, transparent 1.6px);
+  background-size: 96px 96px, 150px 150px;
+  background-position: 0 0, 48px 70px;
+  opacity: .7; animation: starDriftA 90s linear infinite;
+}
+.fx-stars::after {
+  background-image: radial-gradient(circle, var(--star2) 1.6px, transparent 2.2px);
+  background-size: 220px 220px; opacity: .55; animation: starDriftB 140s linear infinite;
+}
+@keyframes starDriftA { to { transform: translate3d(120px, -340px, 0); } }
+@keyframes starDriftB { to { transform: translate3d(-90px, -300px, 0); } }
+/* if WebGL can't run, make the CSS field the full star background */
+.no-webgl .fx-stars::before { opacity: .9; }
+.no-webgl .fx-stars::after { opacity: .75; }
+@media (prefers-reduced-motion: reduce) { .fx-stars::before, .fx-stars::after { animation: none; } }
 
 .accent-text { font-style: italic; background: linear-gradient(100deg, var(--hl1), var(--hl2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .scroll-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--accent); z-index: 1001; }

@@ -12,11 +12,21 @@
   window.__setSceneTheme = window.__setSceneTheme || function () {};
   window.__setSceneScroll = window.__setSceneScroll || function () {};
 
-  function shouldInit() {
-    return typeof window.THREE !== 'undefined' && !!document.getElementById('bg-canvas');
+  function webglOK() {
+    try {
+      var c = document.createElement('canvas');
+      return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
+    } catch (e) { return false; }
   }
 
-  window.addEventListener('load', function () { if (shouldInit()) init(); });
+  function shouldInit() {
+    return typeof window.THREE !== 'undefined' && !!document.getElementById('bg-canvas') && webglOK();
+  }
+
+  window.addEventListener('load', function () {
+    if (!shouldInit()) { document.body.classList.add('no-webgl'); return; }  // CSS particle field takes over
+    try { init(); } catch (e) { document.body.classList.add('no-webgl'); }
+  });
 
   function init() {
     var THREE = window.THREE;
@@ -26,9 +36,9 @@
     /* ---- adaptive quality ---- */
     var tier = W < 600 ? 'low' : (W < 1024 ? 'mid' : 'high');
     var CFG = {
-      high: { particles: 3600, dpr: Math.min(window.devicePixelRatio, 2) },
-      mid:  { particles: 2200, dpr: Math.min(window.devicePixelRatio, 1.75) },
-      low:  { particles: 1100, dpr: Math.min(window.devicePixelRatio, 1.5) }
+      high: { particles: 4600, size: 0.11, dpr: Math.min(window.devicePixelRatio, 2) },
+      mid:  { particles: 2800, size: 0.12, dpr: Math.min(window.devicePixelRatio, 1.75) },
+      low:  { particles: 1500, size: 0.13, dpr: Math.min(window.devicePixelRatio, 1.5) }
     }[tier];
 
     /* ---- theme palette ---- */
@@ -63,23 +73,25 @@
     /* ============================================================
        THOUSANDS OF ORBITING PARTICLES (two counter-rotating shells)
        ============================================================ */
-    function makeCloud(count, rMin, rMax) {
+    // 3D starfield you fly through: particles in a box volume that stream in +Z
+    function makeCloud(count, spread, depth, sizeMul) {
       var pos = new Float32Array(count * 3);
+      var vel = new Float32Array(count);
       for (var i = 0; i < count; i++) {
-        var r = rMin + Math.random() * (rMax - rMin);
-        var th = Math.random() * Math.PI * 2;
-        var ph = Math.acos(2 * Math.random() - 1);
-        pos[i * 3]     = r * Math.sin(ph) * Math.cos(th);
-        pos[i * 3 + 1] = r * Math.cos(ph) * 0.7;            // flattened disc-ish
-        pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+        pos[i * 3]     = (Math.random() - 0.5) * spread;
+        pos[i * 3 + 1] = (Math.random() - 0.5) * spread * 0.72;
+        pos[i * 3 + 2] = (Math.random() - 0.5) * depth;
+        vel[i] = 0.02 + Math.random() * 0.06;
       }
       var g = new THREE.BufferGeometry();
       g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      var m = new THREE.PointsMaterial({ color: P.particle, size: 0.035, transparent: true, opacity: P.particleOpacity, depthWrite: false, blending: P.blend });
-      return new THREE.Points(g, m);
+      var m = new THREE.PointsMaterial({ color: P.particle, size: CFG.size * (sizeMul || 1), sizeAttenuation: true, transparent: true, opacity: P.particleOpacity, depthWrite: false, blending: P.blend });
+      var pts = new THREE.Points(g, m);
+      pts.userData = { vel: vel, spread: spread, depth: depth };
+      return pts;
     }
-    var cloudA = makeCloud(Math.round(CFG.particles * 0.6), 3.2, 7.5);
-    var cloudB = makeCloud(Math.round(CFG.particles * 0.4), 4.5, 9.5);
+    var cloudA = makeCloud(Math.round(CFG.particles * 0.65), 26, 24, 1.0);
+    var cloudB = makeCloud(Math.round(CFG.particles * 0.35), 34, 28, 1.5);  // larger, nearer = depth
     universe.add(cloudA); universe.add(cloudB);
 
     /* ============================================================
@@ -193,12 +205,23 @@
       /* (particles-only background — no central object) */
       coreLight.position.set(0, 0, 0);
 
-      /* particle shells (counter-rotating) + scroll expansion */
-      var pscale = 1 + scrollP * 0.7;
-      cloudA.rotation.y += 0.0009; cloudA.rotation.x = Math.sin(t * 0.1) * 0.1;
-      cloudB.rotation.y -= 0.0006; cloudB.rotation.z += 0.0003;
-      cloudA.scale.setScalar(pscale); cloudB.scale.setScalar(pscale);
-      cloudA.material.opacity = P.particleOpacity * (0.85 + 0.15 * Math.sin(t));
+      /* 3D starfield streaming toward the camera (fly-through motion) */
+      var boost = 1 + scrollP * 2.4;
+      [cloudA, cloudB].forEach(function (cl) {
+        var arr = cl.geometry.attributes.position.array;
+        var vel = cl.userData.vel, half = cl.userData.depth / 2, sp = cl.userData.spread;
+        for (var i = 0; i < vel.length; i++) {
+          arr[i * 3 + 2] += vel[i] * boost;
+          if (arr[i * 3 + 2] > 13) {                 // recycle past the camera to the far back
+            arr[i * 3 + 2] = -half - 2;
+            arr[i * 3]     = (Math.random() - 0.5) * sp;
+            arr[i * 3 + 1] = (Math.random() - 0.5) * sp * 0.72;
+          }
+        }
+        cl.geometry.attributes.position.needsUpdate = true;
+        cl.rotation.z += 0.0004;                     // subtle swirl
+      });
+      cloudA.material.opacity = P.particleOpacity * (0.9 + 0.1 * Math.sin(t));
 
       /* floating icons + energy trails */
       icons.forEach(function (spr, i) {
