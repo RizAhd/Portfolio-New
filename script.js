@@ -30,10 +30,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  /* ---------- Lenis smooth scroll ---------- */
+  /* ---------- Lenis smooth scroll (desktop pointers only — phones use native momentum) ---------- */
+  var TOUCH = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   var lenis = null;
-  if (window.Lenis && !REDUCED) {
-    lenis = new Lenis({ duration: 1.15, easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); }, smoothWheel: true });
+  if (window.Lenis && !REDUCED && !TOUCH) {
+    lenis = new Lenis({ duration: 1.05, easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); }, smoothWheel: true, smoothTouch: false, wheelMultiplier: 1, syncTouch: false });
     // When GSAP is present, gsap.ticker drives lenis.raf (below) — avoid double-driving here.
     if (!hasGSAP) { (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })(0); }
     document.querySelectorAll('a[href^="#"]').forEach(function (a) {
