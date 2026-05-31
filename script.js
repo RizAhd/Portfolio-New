@@ -142,14 +142,16 @@ document.addEventListener('DOMContentLoaded', function () {
     /* Language bars */
     ScrollTrigger.create({ trigger: '.languages', start: 'top 82%', once: true, onEnter: fillBars });
 
-    /* ---- Parallax ---- */
-    gsap.fromTo('.hero-photo', { yPercent: 0 }, { yPercent: -12, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } });
-    gsap.utils.toArray('.section-title').forEach(function (t) {
-      gsap.fromTo(t, { y: 30 }, { y: -22, ease: 'none', scrollTrigger: { trigger: t, start: 'top 92%', end: 'top 38%', scrub: 1 } });
-    });
-    gsap.utils.toArray('.section-index').forEach(function (s) {
-      gsap.fromTo(s, { y: 12 }, { y: -24, ease: 'none', scrollTrigger: { trigger: s, start: 'top bottom', end: 'top top', scrub: true } });
-    });
+    /* ---- Parallax (scrub) — desktop only; skipped on touch to keep phones buttery ---- */
+    if (!TOUCH) {
+      gsap.fromTo('.hero-photo', { yPercent: 0 }, { yPercent: -12, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true } });
+      gsap.utils.toArray('.section-title').forEach(function (t) {
+        gsap.fromTo(t, { y: 30 }, { y: -22, ease: 'none', scrollTrigger: { trigger: t, start: 'top 92%', end: 'top 38%', scrub: 1 } });
+      });
+      gsap.utils.toArray('.section-index').forEach(function (s) {
+        gsap.fromTo(s, { y: 12 }, { y: -24, ease: 'none', scrollTrigger: { trigger: s, start: 'top bottom', end: 'top top', scrub: true } });
+      });
+    }
 
     window.addEventListener('load', function () { ScrollTrigger.refresh(); });
   } else {

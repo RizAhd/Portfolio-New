@@ -186,6 +186,20 @@
     var scrollP = 0;
     window.__setSceneScroll = function (p) { scrollP = p || 0; };
 
+    /* ---- performance: only render while the hero is on screen ----
+       Once scrolled past the hero, pause the GPU/CPU work so content
+       scrolls perfectly smoothly. Resumes when you scroll back up. */
+    var heroVisible = true;
+    var heroEl = document.getElementById('hero');
+    if (heroEl && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        heroVisible = entries[0].isIntersecting;
+      }, { rootMargin: '120px' }).observe(heroEl);
+    }
+    // also pause when the tab is hidden
+    var pageVisible = true;
+    document.addEventListener('visibilitychange', function () { pageVisible = !document.hidden; });
+
     function onResize() {
       W = window.innerWidth; H = window.innerHeight;
       renderer.setSize(W, H); camera.aspect = W / H; camera.updateProjectionMatrix();
@@ -199,6 +213,8 @@
     var tmp = new THREE.Vector3();
     (function animate() {
       requestAnimationFrame(animate);
+      // Skip all 3D work when the hero is off-screen or tab hidden → smooth content scroll.
+      if (!heroVisible || !pageVisible) { clock.getDelta(); return; }
       var t = clock.getElapsedTime();
       var dt = Math.min(clock.getDelta(), 0.05);
 
