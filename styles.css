@@ -407,3 +407,21 @@ body.loading { overflow: hidden; }
 /* nav link micro-interaction: monospace bracket */
 .nav-links a { transition: color .25s, letter-spacing .25s; }
 .nav-links a:hover { letter-spacing: .03em; }
+
+/* ============================================================
+   MOBILE / TOUCH PERFORMANCE
+   backdrop-filter blur repaints every scroll frame on phones — the #1
+   mobile scroll-jank cause. Replace with solid translucent backgrounds.
+   ============================================================ */
+@media (hover: none), (pointer: coarse) {
+  .nav.scrolled, .nav-links, .hero-status, .pv-badge {
+    -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+  }
+  .nav.scrolled { background: color-mix(in srgb, var(--bg-primary) 94%, transparent); }
+  .nav-links    { background: var(--bg-primary); }
+  .hero-status  { background: color-mix(in srgb, var(--bg-card) 94%, transparent); }
+  .pv-badge     { background: color-mix(in srgb, var(--bg-card) 90%, transparent); }
+  /* a touch less continuous compositor work on phones */
+  .pv-glow { filter: blur(30px); }
+}
