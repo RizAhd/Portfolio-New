@@ -126,7 +126,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 /* if WebGL can't run, make the CSS field the full star background */
 .no-webgl .fx-stars::before { opacity: .9; }
 .no-webgl .fx-stars::after { opacity: .75; }
-@media (prefers-reduced-motion: reduce) { .fx-stars::before, .fx-stars::after { animation: none; } }
+/* (motion kept on intentionally — owner wants the animated background regardless of OS setting) */
 
 .accent-text { font-style: italic; background: linear-gradient(100deg, var(--hl1), var(--hl2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .scroll-progress { position: fixed; top: 0; left: 0; height: 2px; width: 0%; background: var(--accent); z-index: 1001; }
@@ -281,7 +281,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 
 /* Projects */
 .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.project-card { padding: 30px 26px; position: relative; overflow: hidden; transform-style: preserve-3d; }
+.project-card { display: block; color: inherit; text-decoration: none; padding: 30px 26px; position: relative; overflow: hidden; transform-style: preserve-3d; }
+.proj-link { display: inline-block; margin-top: 16px; color: var(--hl2); letter-spacing: .1em; text-transform: uppercase; position: relative; }
+.proj-link::after { content: ""; position: absolute; left: 0; bottom: -3px; width: 0; height: 1px; background: var(--hl2); transition: width .3s var(--ease); }
+.project-card:hover .proj-link::after { width: 100%; }
 .project-card::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: 0; transition: opacity .4s ease; background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.16), transparent 40%); z-index: 2; }
 .project-card:hover { border-color: color-mix(in srgb, var(--accent) 60%, var(--border)); box-shadow: 0 26px 56px var(--shadow), 0 0 26px color-mix(in srgb, var(--accent) 18%, transparent); }
 .project-card:hover::after { opacity: 1; }
@@ -331,14 +334,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 .gsap-on .reveal { opacity: 0; will-change: transform, opacity; }
 .gsap-on .section-divider { transform: scaleX(0); }
 
-@media (prefers-reduced-motion: no-preference) {
-  .bg-mesh { will-change: background-position; animation: meshDrift 28s ease-in-out infinite alternate; }
-}
-@media (prefers-reduced-motion: reduce) {
-  /* Only calm the always-looping decorations; GSAP-driven reveals still play
-     (the owner wants the full motion experience). */
-  .marquee-track, .pv-glow { animation: none; }
-}
+.bg-mesh { will-change: background-position; animation: meshDrift 28s ease-in-out infinite alternate; }
+/* (no reduced-motion freeze — animations stay on by request) */
 
 /* ============================================================
    RESPONSIVE — 480 / 768 / 1024 / 1440
