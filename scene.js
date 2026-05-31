@@ -26,15 +26,15 @@
     /* ---- adaptive quality ---- */
     var tier = W < 600 ? 'low' : (W < 1024 ? 'mid' : 'high');
     var CFG = {
-      high: { particles: 2200, dpr: Math.min(window.devicePixelRatio, 2) },
-      mid:  { particles: 1300, dpr: Math.min(window.devicePixelRatio, 1.75) },
-      low:  { particles: 700,  dpr: Math.min(window.devicePixelRatio, 1.5) }
+      high: { particles: 3600, dpr: Math.min(window.devicePixelRatio, 2) },
+      mid:  { particles: 2200, dpr: Math.min(window.devicePixelRatio, 1.75) },
+      low:  { particles: 1100, dpr: Math.min(window.devicePixelRatio, 1.5) }
     }[tier];
 
     /* ---- theme palette ---- */
     var THEME = {
-      dark:  { particle: 0xf3ecd6, core: 0xd4af37, ring: 0xffffff, trail: 0xd4af37, glow: 0xd4af37, fog: 0x0a0a0a, particleOpacity: 0.62, blend: THREE.AdditiveBlending },
-      light: { particle: 0x33312b, core: 0xc9a227, ring: 0x111111, trail: 0xc9a227, glow: 0xc9a227, fog: 0xffffff, particleOpacity: 0.5, blend: THREE.NormalBlending }
+      dark:  { particle: 0xf3ecd6, core: 0xd4af37, ring: 0xffffff, trail: 0xd4af37, glow: 0xd4af37, fog: 0x0a0a0a, particleOpacity: 0.85, blend: THREE.AdditiveBlending },
+      light: { particle: 0x33312b, core: 0xc9a227, ring: 0x111111, trail: 0xc9a227, glow: 0xc9a227, fog: 0xffffff, particleOpacity: 0.62, blend: THREE.NormalBlending }
     };
     var themeName = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
     var P = THEME[themeName];
@@ -58,57 +58,53 @@
     scene.add(universe);
 
     /* ============================================================
-       AI NEURAL NETWORK SPHERE (central model)
-       nodes distributed on a sphere + neural connection lines + core glow
+       FLOATING DATA CORE (central model)
+       glowing crystal core · concentric rotating data frames ·
+       vertical data-stream particles flowing through it
        ============================================================ */
     var core = new THREE.Group();
     universe.add(core);
     var isDarkTheme = themeName === 'dark';
 
-    var NEURAL_N = tier === 'low' ? 40 : (tier === 'mid' ? 72 : 110);
-    var NEURAL_R = 1.75;
-    var npos = new Float32Array(NEURAL_N * 3);
-    var nodePts = [];
-    var GOLDEN = Math.PI * (3 - Math.sqrt(5));
-    for (var k = 0; k < NEURAL_N; k++) {
-      var yk = 1 - (k / (NEURAL_N - 1)) * 2;          // -1..1
-      var rad = Math.sqrt(Math.max(0, 1 - yk * yk));
-      var th = k * GOLDEN;
-      var vx = Math.cos(th) * rad, vy = yk, vz = Math.sin(th) * rad;
-      npos[k * 3] = vx * NEURAL_R; npos[k * 3 + 1] = vy * NEURAL_R; npos[k * 3 + 2] = vz * NEURAL_R;
-      nodePts.push(new THREE.Vector3(vx * NEURAL_R, vy * NEURAL_R, vz * NEURAL_R));
-    }
-    var neuralGeo = new THREE.BufferGeometry();
-    neuralGeo.setAttribute('position', new THREE.BufferAttribute(npos, 3));
-    var neuralPointsMat = new THREE.PointsMaterial({ color: P.glow, size: 0.09, transparent: true, opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending });
-    var neuralPoints = new THREE.Points(neuralGeo, neuralPointsMat);
-    core.add(neuralPoints);
-
-    // neural connections — link nearby nodes
-    var segPos = [];
-    var LINK = NEURAL_R * 0.62;
-    for (var a = 0; a < NEURAL_N; a++) {
-      for (var b = a + 1; b < NEURAL_N; b++) {
-        if (nodePts[a].distanceTo(nodePts[b]) < LINK) {
-          segPos.push(nodePts[a].x, nodePts[a].y, nodePts[a].z, nodePts[b].x, nodePts[b].y, nodePts[b].z);
-        }
-      }
-    }
-    var linesGeo = new THREE.BufferGeometry();
-    linesGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(segPos), 3));
-    var neuralLinesMat = new THREE.LineBasicMaterial({ color: P.core, transparent: true, opacity: 0.26, blending: THREE.AdditiveBlending, depthWrite: false });
-    var neuralLines = new THREE.LineSegments(linesGeo, neuralLinesMat);
+    // central data crystal (octahedron wireframe) — reuses neuralLinesMat name
+    var neuralLinesMat = new THREE.MeshBasicMaterial({ color: P.core, wireframe: true, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false });
+    var neuralLines = new THREE.Mesh(new THREE.OctahedronGeometry(0.9, 0), neuralLinesMat);
     core.add(neuralLines);
 
-    // faint sphere shell for structure
-    var shellMat = new THREE.MeshBasicMaterial({ color: P.ring, wireframe: true, transparent: true, opacity: 0.05, blending: THREE.AdditiveBlending, depthWrite: false });
-    var coreShell = new THREE.Mesh(new THREE.SphereGeometry(NEURAL_R, 20, 20), shellMat);
+    // glowing nucleus at the heart of the core
+    var nucleusMat = new THREE.MeshBasicMaterial({ color: P.glow, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false });
+    var nucleus = new THREE.Mesh(new THREE.SphereGeometry(0.42, 24, 24), nucleusMat);
+    core.add(nucleus);
+
+    // outer data container (wireframe box) — reuses shellMat/coreShell names
+    var shellMat = new THREE.MeshBasicMaterial({ color: P.ring, wireframe: true, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false });
+    var coreShell = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.2, 2.2), shellMat);
     core.add(coreShell);
 
-    // central glow nucleus
-    var nucleusMat = new THREE.MeshBasicMaterial({ color: P.glow, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false });
-    var nucleus = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 20), nucleusMat);
-    core.add(nucleus);
+    // concentric rotating data frames
+    var dataFrames = [];
+    var f1 = new THREE.Mesh(new THREE.BoxGeometry(1.55, 1.55, 1.55), new THREE.MeshBasicMaterial({ color: P.core, wireframe: true, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending, depthWrite: false }));
+    var f2 = new THREE.Mesh(new THREE.IcosahedronGeometry(1.2, 0), new THREE.MeshBasicMaterial({ color: P.ring, wireframe: true, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false }));
+    core.add(f1); core.add(f2); dataFrames.push(f1, f2);
+
+    // vertical data-stream particles flowing through the core — reuses neuralPoints* names
+    var DN = tier === 'low' ? 280 : (tier === 'mid' ? 480 : 800);
+    var DSPAN = 1.9;
+    var dpos = new Float32Array(DN * 3);
+    var dspeed = new Float32Array(DN);
+    for (var k = 0; k < DN; k++) {
+      var ang = Math.random() * Math.PI * 2;
+      var rr = 0.5 + Math.random() * 2.2;
+      dpos[k * 3] = Math.cos(ang) * rr;
+      dpos[k * 3 + 1] = (Math.random() - 0.5) * 2 * DSPAN;
+      dpos[k * 3 + 2] = Math.sin(ang) * rr;
+      dspeed[k] = 0.004 + Math.random() * 0.012;
+    }
+    var dgeo = new THREE.BufferGeometry();
+    dgeo.setAttribute('position', new THREE.BufferAttribute(dpos, 3));
+    var neuralPointsMat = new THREE.PointsMaterial({ color: P.glow, size: 0.055, transparent: true, opacity: 0.85, depthWrite: false, blending: THREE.AdditiveBlending });
+    var neuralPoints = new THREE.Points(dgeo, neuralPointsMat);
+    core.add(neuralPoints);
 
     /* ============================================================
        THOUSANDS OF ORBITING PARTICLES (two counter-rotating shells)
@@ -208,8 +204,9 @@
       scene.fog.color.set(t.fog);
       neuralPointsMat.color.set(t.glow); neuralPointsMat.blending = blend; neuralPointsMat.needsUpdate = true;
       neuralLinesMat.color.set(t.core); neuralLinesMat.blending = blend; neuralLinesMat.needsUpdate = true;
-      shellMat.color.set(t.ring); shellMat.blending = blend; shellMat.opacity = isDark ? 0.05 : 0.12; shellMat.needsUpdate = true;
-      nucleusMat.color.set(t.glow); nucleusMat.blending = blend; nucleusMat.opacity = isDark ? 0.4 : 0.8; nucleusMat.needsUpdate = true;
+      shellMat.color.set(t.ring); shellMat.blending = blend; shellMat.opacity = isDark ? 0.2 : 0.28; shellMat.needsUpdate = true;
+      nucleusMat.color.set(t.glow); nucleusMat.blending = blend; nucleusMat.opacity = isDark ? 0.5 : 0.85; nucleusMat.needsUpdate = true;
+      dataFrames.forEach(function (fr, i) { fr.material.color.set(i === 0 ? t.core : t.ring); fr.material.blending = blend; fr.material.needsUpdate = true; });
       coreLight.color.set(t.core);
       [cloudA, cloudB].forEach(function (cl) { cl.material.color.set(t.particle); cl.material.opacity = t.particleOpacity; cl.material.blending = t.blend; cl.material.needsUpdate = true; });
       trails.forEach(function (ln) { ln.material.color.set(t.trail); ln.material.blending = blend; ln.material.needsUpdate = true; });
@@ -244,14 +241,24 @@
       var t = clock.getElapsedTime();
       var dt = Math.min(clock.getDelta(), 0.05);
 
-      /* AI neural network sphere */
-      core.rotation.y += 0.0018 + scrollP * 0.008;
-      core.rotation.x = Math.sin(t * 0.15) * 0.16;
-      coreShell.rotation.y -= 0.0009;
-      nucleus.scale.setScalar(1 + 0.2 * Math.sin(t * 2.6));
-      // pulsing "neural activity"
+      /* Floating Data Core */
+      core.rotation.y += 0.0016 + scrollP * 0.008;
+      core.rotation.x = Math.sin(t * 0.12) * 0.12;
+      neuralLines.rotation.x += 0.006; neuralLines.rotation.y += 0.009;          // crystal spins
+      coreShell.rotation.y += 0.0016; coreShell.rotation.x -= 0.0009;            // outer container
+      dataFrames[0].rotation.x -= 0.004; dataFrames[0].rotation.z += 0.005;      // mid frame
+      dataFrames[1].rotation.y += 0.006; dataFrames[1].rotation.x += 0.003;      // inner frame
+      nucleus.scale.setScalar(1 + 0.22 * Math.sin(t * 2.6));
+      // data-stream particles rising + looping
+      neuralPoints.rotation.y += 0.004;
+      var dp = dgeo.attributes.position.array;
+      for (var di = 0; di < DN; di++) {
+        dp[di * 3 + 1] += dspeed[di];
+        if (dp[di * 3 + 1] > DSPAN) dp[di * 3 + 1] = -DSPAN;
+      }
+      dgeo.attributes.position.needsUpdate = true;
       neuralPointsMat.opacity = 0.7 + 0.3 * Math.abs(Math.sin(t * 1.6));
-      neuralLinesMat.opacity = (isDarkTheme ? 0.26 : 0.42) * (0.55 + 0.45 * Math.sin(t * 2.2));
+      neuralLinesMat.opacity = (isDarkTheme ? 0.62 : 0.72) * (0.62 + 0.38 * Math.sin(t * 2.2));
       coreLight.position.set(0, 0, 0);
 
       /* particle shells (counter-rotating) + scroll expansion */

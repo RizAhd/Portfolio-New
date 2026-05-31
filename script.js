@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var nav = document.getElementById('nav');
   var progress = document.getElementById('scrollProgress');
   var scrim = document.getElementById('pageScrim');
-  var SCRIM_MAX = 0.9;
+  var SCRIM_MAX = 0.93;
   function handleScroll(y) {
     if (nav) nav.classList.toggle('scrolled', y > 60);
     var h = document.documentElement;
