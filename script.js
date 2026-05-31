@@ -270,35 +270,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  /* ============================================================
-     MAGNETIC CURSOR
-     ============================================================ */
-  if (FINE) {
-    var dot = document.getElementById('cursor-dot');
-    var ring = document.getElementById('cursor-ring');
-    if (dot && ring) {
-      root.classList.add('cursor-enabled');
-      var cx = window.innerWidth / 2, cy = window.innerHeight / 2, rx = cx, ry = cy;
-      window.addEventListener('mousemove', function (e) { cx = e.clientX; cy = e.clientY; dot.style.left = cx + 'px'; dot.style.top = cy + 'px'; }, { passive: true });
-      if (REDUCED) {
-        window.addEventListener('mousemove', function (e) { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }, { passive: true });
-      } else {
-        (function loop() { rx += (cx - rx) * 0.18; ry += (cy - ry) * 0.18; ring.style.left = rx + 'px'; ring.style.top = ry + 'px'; requestAnimationFrame(loop); })();
-      }
-      document.querySelectorAll('a, button').forEach(function (el) {
-        el.addEventListener('mouseenter', function () { ring.classList.add('cursor-hover'); });
-        el.addEventListener('mouseleave', function () { ring.classList.remove('cursor-hover'); });
-      });
-
-      /* Contextual label (e.g. "View" over project cards) */
-      var label = document.getElementById('cursorLabel');
-      document.querySelectorAll('[data-cursor]').forEach(function (el) {
-        el.addEventListener('mouseenter', function () { if (label) label.textContent = el.getAttribute('data-cursor'); ring.classList.add('cursor-label-on'); });
-        el.addEventListener('mouseleave', function () { ring.classList.remove('cursor-label-on'); });
-      });
-
-      window.addEventListener('mousedown', function () { dot.classList.add('cursor-down'); ring.classList.add('cursor-down'); });
-      window.addEventListener('mouseup', function () { dot.classList.remove('cursor-down'); ring.classList.remove('cursor-down'); });
-    }
-  }
+  /* Custom cursor removed — using the normal system pointer. */
 });

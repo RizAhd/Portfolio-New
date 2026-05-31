@@ -156,19 +156,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 /* ============================================================
    MAGNETIC CURSOR
    ============================================================ */
-/* Dark adaptive cursor — white base + mix-blend difference => appears dark
-   on light areas, light on dark; spinning dashed ring, dot grows on click. */
-#cursor-dot, #cursor-ring { position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); display: none; mix-blend-mode: difference; }
-.cursor-enabled #cursor-dot, .cursor-enabled #cursor-ring { display: block; }
-.cursor-enabled, .cursor-enabled * { cursor: none !important; }
-#cursor-dot { width: 8px; height: 8px; background: #fff; transition: transform .18s var(--ease); }
-#cursor-ring { width: 42px; height: 42px; transition: transform .28s var(--ease); }
-#cursor-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1.6px dashed #fff; animation: curspin 5s linear infinite; }
-@keyframes curspin { to { transform: rotate(360deg); } }
-#cursor-ring.cursor-hover { transform: translate(-50%, -50%) scale(1.85); }
-#cursor-dot.cursor-down  { transform: translate(-50%, -50%) scale(2.6); }
-#cursor-ring.cursor-down { transform: translate(-50%, -50%) scale(.85); }
-#cursor-ring.cursor-hover.cursor-down { transform: translate(-50%, -50%) scale(.85); }
+/* Custom cursor removed — normal system pointer is used. */
 
 /* ---------- Buttons ---------- */
 .btn { display: inline-block; padding: 14px 30px; border-radius: 50px; font-weight: 500; font-size: .96rem; letter-spacing: .01em; transition: transform .25s var(--ease), box-shadow .3s var(--ease), background .3s, color .3s, border-color .3s; cursor: pointer; will-change: transform; }
@@ -403,10 +391,6 @@ body.loading { overflow: hidden; }
 /* ============================================================
    CONTEXTUAL CURSOR LABEL
    ============================================================ */
-.cursor-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: .12em; color: #fff; opacity: 0; white-space: nowrap; text-transform: uppercase; transition: opacity .2s ease; }
-#cursor-ring.cursor-label-on { transform: translate(-50%, -50%) scale(1.7); }
-#cursor-ring.cursor-label-on::before { border-style: solid; }
-#cursor-ring.cursor-label-on .cursor-label { opacity: 1; }
 
 /* ============================================================
    PROJECT CARD MICRO-INTERACTIONS
