@@ -20,6 +20,10 @@
   }
 
   function shouldInit() {
+    // Desktop pointers only — phones/tablets use the lightweight CSS particle field
+    // for guaranteed-smooth scrolling (production approach: heavy 3D on desktop only).
+    if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return false;
+    if (window.innerWidth < 1024) return false;
     return typeof window.THREE !== 'undefined' && !!document.getElementById('bg-canvas') && webglOK();
   }
 
