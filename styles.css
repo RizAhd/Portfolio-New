@@ -159,7 +159,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 /* Custom cursor removed — normal system pointer is used. */
 
 /* ---------- Buttons ---------- */
-.btn { display: inline-block; padding: 14px 30px; border-radius: 50px; font-weight: 500; font-size: .96rem; letter-spacing: .01em; transition: transform .25s var(--ease), box-shadow .3s var(--ease), background .3s, color .3s, border-color .3s; cursor: pointer; will-change: transform; }
+.btn { display: inline-block; padding: 14px 30px; border-radius: 50px; font-weight: 500; font-size: .96rem; letter-spacing: .01em; transition: transform .25s var(--ease), box-shadow .3s var(--ease), background .3s, color .3s, border-color .3s; cursor: pointer; }
 .btn-primary { background: var(--accent); color: var(--on-accent); font-weight: 600; }
 .btn-primary:hover { box-shadow: 0 16px 34px var(--shadow); }
 .btn-ghost { border: 1px solid var(--border); color: var(--text-primary); }
