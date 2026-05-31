@@ -319,8 +319,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
    .gsap-on is added by JS only when GSAP + motion are available;
    otherwise content shows normally (graceful / no-JS safe).
    ============================================================ */
-.gsap-on .reveal { opacity: 0; will-change: transform, opacity; }
-.gsap-on .section-divider { transform: scaleX(0); }
+/* Content is always visible (no scroll-reveal hiding) for instant, fast-scroll-safe loading. */
 
 .bg-mesh { will-change: background-position; animation: meshDrift 28s ease-in-out infinite alternate; }
 /* (no reduced-motion freeze — animations stay on by request) */
