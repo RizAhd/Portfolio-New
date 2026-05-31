@@ -121,50 +121,10 @@ document.addEventListener('DOMContentLoaded', function () {
     fillBars();
   }
 
-  /* Hero plays after the loader; without GSAP just run counters */
+  /* Content shows immediately — no loader gate. Play the hero entrance now. */
   function playHero() { if (heroTL) heroTL.play(0); else startCounters(); }
-
-  /* ============================================================
-     SMOOTH LOADER — software-engineer "compile" sequence
-     ============================================================ */
-  var loaderEl = document.getElementById('loader');
-  var loaderEnded = false;
-  function endLoader() {
-    if (loaderEnded) return;
-    loaderEnded = true;
-    if (loaderEl) loaderEl.classList.add('done');
-    document.body.classList.remove('loading');
-    if (lenis) lenis.start();
-    if (hasGSAP) ScrollTrigger.refresh();
-    playHero();
-    if (loaderEl) setTimeout(function () { if (loaderEl.parentNode) loaderEl.remove(); }, 800);
-  }
-  if (loaderEl) {
-    if (lenis) lenis.stop();
-    var fill = document.getElementById('loaderFill');
-    var pctEl = document.getElementById('loaderPct');
-    var txtEl = document.getElementById('loaderText');
-    if (REDUCED) {
-      if (fill) fill.style.width = '100%';
-      if (pctEl) pctEl.textContent = '100%';
-      setTimeout(endLoader, 250);
-    } else {
-      var pct = 0;
-      var msgs = [[0, 'INITIALIZING'], [28, 'COMPILING MODULES'], [55, 'RENDERING SCENE'], [82, 'OPTIMIZING'], [100, 'READY']];
-      var iv = setInterval(function () {
-        pct += Math.random() * 13 + 5;
-        if (pct >= 100) { pct = 100; clearInterval(iv); }
-        if (fill) fill.style.width = pct + '%';
-        if (pctEl) pctEl.textContent = Math.floor(pct) + '%';
-        if (txtEl) { for (var i = msgs.length - 1; i >= 0; i--) { if (pct >= msgs[i][0]) { txtEl.textContent = msgs[i][1]; break; } } }
-        if (pct >= 100) setTimeout(endLoader, 320);
-      }, 130);
-    }
-  } else {
-    playHero();
-  }
-  /* Hard failsafe: never leave the page locked behind the loader */
-  setTimeout(endLoader, 4500);
+  document.body.classList.remove('loading');
+  playHero();
 
   /* ============================================================
      MAGNETIC buttons / controls
