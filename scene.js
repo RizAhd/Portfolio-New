@@ -36,9 +36,9 @@
     /* ---- adaptive quality ---- */
     var tier = W < 600 ? 'low' : (W < 1024 ? 'mid' : 'high');
     var CFG = {
-      high: { particles: 1000, size: 0.11, dpr: Math.min(window.devicePixelRatio, 2) },
-      mid:  { particles: 1000, size: 0.12, dpr: Math.min(window.devicePixelRatio, 1.75) },
-      low:  { particles: 1125, size: 0.13, dpr: Math.min(window.devicePixelRatio, 1.5) }
+      high: { particles: 1000, size: 0.11, dpr: Math.min(window.devicePixelRatio, 1.5) },
+      mid:  { particles: 1000, size: 0.12, dpr: Math.min(window.devicePixelRatio, 1.5) },
+      low:  { particles: 1125, size: 0.13, dpr: Math.min(window.devicePixelRatio, 1.25) }
     }[tier];
 
     /* ---- theme palette ---- */
@@ -183,8 +183,8 @@
     window.addEventListener('touchmove', function (e) { if (!e.touches[0]) return; var tt = e.touches[0]; mx = tt.clientX / window.innerWidth - 0.5; my = tt.clientY / window.innerHeight - 0.5; if (!queued) { queued = true; requestAnimationFrame(applyMouse); } }, { passive: true });
 
     /* ---- scroll transforms ---- */
-    var scrollP = 0;
-    window.__setSceneScroll = function (p) { scrollP = p || 0; };
+    var scrollP = 0, lastScrollT = -9999;
+    window.__setSceneScroll = function (p) { scrollP = p || 0; lastScrollT = performance.now(); };
 
     /* ---- performance: only render while the hero is on screen ----
        Once scrolled past the hero, pause the GPU/CPU work so content
@@ -211,10 +211,17 @@
        ============================================================ */
     var clock = new THREE.Clock();
     var tmp = new THREE.Vector3();
+    var lastRender = 0;
     (function animate() {
       requestAnimationFrame(animate);
       // Skip all 3D work when the hero is off-screen or tab hidden → smooth content scroll.
       if (!heroVisible || !pageVisible) { clock.getDelta(); return; }
+      var now = performance.now();
+      // Pause rendering while actively scrolling so scroll frames stay buttery.
+      if (now - lastScrollT < 160) { clock.getDelta(); return; }
+      // Cap to ~40fps — plenty for a background, halves the GPU/CPU load.
+      if (now - lastRender < 24) return;
+      lastRender = now;
       var t = clock.getElapsedTime();
       var dt = Math.min(clock.getDelta(), 0.05);
 
