@@ -325,8 +325,17 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
 /* (no reduced-motion freeze — animations stay on by request) */
 
 /* ============================================================
-   RESPONSIVE — 480 / 768 / 1024 / 1440
+   RESPONSIVE — 480 / 768 / 1024 / 1440 / 1920 / 2560
    ============================================================ */
+/* Tablets / iPads / small laptops — 2-up grids instead of cramped 3-up,
+   while still distinct from the single-column phone layout below. */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .skills-grid, .projects-grid, .edu-grid { grid-template-columns: repeat(2, 1fr); }
+  .section { padding: clamp(80px, 11vw, 110px) clamp(1.5rem, 4vw, 2rem); }
+  .nav-links { gap: 22px; }
+  .nav-links a { font-size: .88rem; }
+}
+
 @media (max-width: 768px) {
   .projects-grid, .skills-grid, .edu-grid, .about-grid, .about-cards { grid-template-columns: 1fr; }
   /* Developer Universe runs on all devices now (adaptive quality in scene.js) */
@@ -346,9 +355,6 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
   .nav-toggle.open span:nth-child(2) { opacity: 0; }
   .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-  .hero-inner { grid-template-columns: 1fr; text-align: center; gap: 44px; }
-  .hero-text { order: 2; }
-  .hero-photo { order: 1; }
   .hero-cta, .hero-stats { justify-content: center; }
   .hero-desc { margin-left: auto; margin-right: auto; }
 
@@ -363,13 +369,54 @@ body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-even
   .stat-num { font-size: 2.2rem; }
   .btn { padding: 12px 24px; font-size: .9rem; }
   .pv-vlabel { display: none; }
+  /* CTA buttons stretch full-width so they never wrap into a lopsided row */
+  .hero-cta { width: 100%; }
+  .hero-cta .btn { flex: 1 1 auto; text-align: center; }
+}
+
+/* Smallest phones (320px) — keep the 3 stats on one row without overflow. */
+@media (max-width: 360px) {
+  .hero-stats { gap: clamp(.7rem, 4vw, 1.2rem); }
+  .stat-num { font-size: 1.9rem; }
+  .section-head { margin-bottom: 40px; }
 }
 
 @media (min-width: 1440px) { :root { --maxw: 1240px; } }
+/* Large desktops / 2K — give content more room so it doesn't look lost. */
+@media (min-width: 1920px) {
+  :root { --maxw: 1440px; }
+  .hero-inner { max-width: 940px; }
+}
+/* 4K and ultra-wide — keep line lengths readable, scale the type up gently. */
+@media (min-width: 2560px) {
+  :root { --maxw: 1640px; }
+  html { font-size: 18px; }
+  .hero-inner { max-width: 1040px; }
+}
 
 @media (hover: none), (pointer: coarse) {
   #cursor-dot, #cursor-ring { display: none !important; }
   .cursor-enabled, .cursor-enabled * { cursor: auto !important; }
+}
+
+/* ============================================================
+   REDUCED MOTION — accessibility
+   Honour an explicit OS "reduce motion" request by calming the
+   continuous *ambient* loops only. The design, layout, colours,
+   and elegant hover transitions are all preserved.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fx-stars::before, .fx-stars::after,
+  .bg-mesh,
+  .pv-float,
+  .pv-glow,
+  .pv-orbit, .pv-orbit2,
+  .pv-dot,
+  .marquee-track,
+  .loader-mono span { animation: none !important; }
+  /* keep the portrait gently anchored rather than mid-float */
+  .pv-float { transform: none; }
 }
 
 /* ============================================================

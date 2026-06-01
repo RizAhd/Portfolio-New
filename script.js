@@ -131,12 +131,21 @@ document.addEventListener('DOMContentLoaded', function () {
      ============================================================ */
   if (FINE && !REDUCED) {
     document.querySelectorAll('.btn, .theme-toggle, .nav-logo, .contact-links a').forEach(function (el) {
-      el.style.willChange = 'transform';
+      var raf = 0, pending = null;
+      el.addEventListener('mouseenter', function () { el.style.willChange = 'transform'; });
       el.addEventListener('mousemove', function (e) {
         var r = el.getBoundingClientRect();
-        el.style.transform = 'translate(' + ((e.clientX - (r.left + r.width / 2)) * 0.35) + 'px,' + ((e.clientY - (r.top + r.height / 2)) * 0.35) + 'px)';
+        pending = { x: (e.clientX - (r.left + r.width / 2)) * 0.35, y: (e.clientY - (r.top + r.height / 2)) * 0.35 };
+        if (!raf) raf = requestAnimationFrame(function () {
+          raf = 0; var p = pending; if (!p) return;
+          el.style.transform = 'translate(' + p.x + 'px,' + p.y + 'px)';
+        });
       });
-      el.addEventListener('mouseleave', function () { el.style.transform = 'translate(0,0)'; });
+      el.addEventListener('mouseleave', function () {
+        if (raf) { cancelAnimationFrame(raf); raf = 0; } pending = null;
+        el.style.transform = 'translate(0,0)';
+        el.style.willChange = 'auto';
+      });
     });
   }
 
@@ -146,25 +155,39 @@ document.addEventListener('DOMContentLoaded', function () {
   if (FINE && !REDUCED) {
     document.querySelectorAll('[data-tilt]:not(.project-card)').forEach(function (el) {
       el.style.transformStyle = 'preserve-3d';
+      var raf = 0, pending = null;
       el.addEventListener('mousemove', function (e) {
         var r = el.getBoundingClientRect();
-        var px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
-        el.style.transform = 'perspective(900px) rotateY(' + (px * 7) + 'deg) rotateX(' + (-py * 7) + 'deg) translateY(-4px)';
+        pending = { px: (e.clientX - r.left) / r.width - 0.5, py: (e.clientY - r.top) / r.height - 0.5 };
+        if (!raf) raf = requestAnimationFrame(function () {
+          raf = 0; var p = pending; if (!p) return;
+          el.style.transform = 'perspective(900px) rotateY(' + (p.px * 7) + 'deg) rotateX(' + (-p.py * 7) + 'deg) translateY(-4px)';
+        });
       });
-      el.addEventListener('mouseleave', function () { el.style.transform = 'perspective(900px) rotateY(0) rotateX(0) translateY(0)'; });
+      el.addEventListener('mouseleave', function () {
+        if (raf) { cancelAnimationFrame(raf); raf = 0; } pending = null;
+        el.style.transform = 'perspective(900px) rotateY(0) rotateX(0) translateY(0)';
+      });
     });
 
     var card = document.getElementById('photoCard');
     var hero = document.getElementById('hero');
     if (card && hero) {
       var gloss = card.querySelector('.pv-gloss');
+      var craf = 0, cpending = null;
       hero.addEventListener('mousemove', function (e) {
         var r = hero.getBoundingClientRect();
-        var px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
-        card.style.transform = 'rotateY(' + (px * 18) + 'deg) rotateX(' + (-py * 18) + 'deg)';
-        if (gloss) gloss.style.setProperty('--gloss', (px * 100 + 50) + '%');
+        cpending = { px: (e.clientX - r.left) / r.width - 0.5, py: (e.clientY - r.top) / r.height - 0.5 };
+        if (!craf) craf = requestAnimationFrame(function () {
+          craf = 0; var p = cpending; if (!p) return;
+          card.style.transform = 'rotateY(' + (p.px * 18) + 'deg) rotateX(' + (-p.py * 18) + 'deg)';
+          if (gloss) gloss.style.setProperty('--gloss', (p.px * 100 + 50) + '%');
+        });
       });
-      hero.addEventListener('mouseleave', function () { card.style.transform = 'rotateY(0) rotateX(0)'; });
+      hero.addEventListener('mouseleave', function () {
+        if (craf) { cancelAnimationFrame(craf); craf = 0; } cpending = null;
+        card.style.transform = 'rotateY(0) rotateX(0)';
+      });
     }
   }
 
